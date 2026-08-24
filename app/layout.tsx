@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { site } from "@/src/lib/site";
 
 export const metadata: Metadata = {
-  title: "ВремяЕсть — запись без переписок",
-  description: "Простая онлайн-запись для специалистов и небольших сервисов.",
+  title: site.title,
+  description: site.description,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

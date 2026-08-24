@@ -6,7 +6,7 @@ export async function notifyTelegram(booking: Booking) {
   if (!token || !chatId) return { sent: false, reason: "not-configured" as const };
 
   const text = [
-    "Новая запись в ВремяЕсть",
+    "Новая запись в Slotly",
     `${booking.serviceName} · ${booking.date} в ${booking.time}`,
     `Клиент: ${booking.clientName}`,
     `Телефон: ${booking.phone}`,

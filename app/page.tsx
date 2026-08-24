@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <main>
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6 lg:px-8">
-        <Link href="/" className="display text-2xl font-bold tracking-tight">Время<span className="text-[var(--accent)]">Есть</span></Link>
+        <Link href="/" className="display text-2xl font-bold tracking-tight">Slot<span className="text-[var(--accent)]">ly</span></Link>
         <div className="flex items-center gap-5 text-sm font-semibold text-[var(--muted)]">
           <a href="#services" className="hidden transition hover:text-[var(--ink)] sm:block">Услуги</a>
           <a href="#how" className="hidden transition hover:text-[var(--ink)] sm:block">Как это работает</a>
@@ -60,7 +60,7 @@ export default function HomePage() {
 
       <section id="how" className="bg-[#e9f0e9] px-5 py-18 lg:px-8"><div className="mx-auto max-w-6xl"><p className="eyebrow mb-3">Всё просто</p><h2 className="display max-w-2xl text-4xl font-bold sm:text-5xl">Три шага — и время уже за вами.</h2><div className="mt-10 grid gap-8 md:grid-cols-3">{[["01", "Выберите услугу", "Поймёте длительность и стоимость до записи."], ["02", "Найдите удобное окно", "Календарь показывает только свободное время."], ["03", "Оставьте контакты", "Мы подтвердим запись и не потеряем её в чате."]].map(([number, title, text]) => <div key={number} className="border-t border-[#b9cdbd] pt-5"><span className="text-sm font-bold text-[var(--accent)]">{number}</span><h3 className="mt-8 text-xl font-bold">{title}</h3><p className="mt-2 leading-6 text-[var(--muted)]">{text}</p></div>)}</div></div></section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-[var(--muted)] lg:px-8"><span>© 2026 ВремяЕсть</span><span>{demoProfile.address} · {demoProfile.phone}</span></footer>
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-[var(--muted)] lg:px-8"><span>© 2026 Slotly</span><span>{demoProfile.address} · {demoProfile.phone}</span></footer>
     </main>
   );
 }
