@@ -1,13 +1,35 @@
 import { demoAvailability } from "./demo-data";
-import type { BookingInput } from "./domain";
+import type { Booking, BookingInput } from "./domain";
+import { isSupabaseConfigured } from "./supabase";
+import { createClient } from "./supabase/server";
 import { getDemoRepository } from "./repository";
 import { isPastSlot } from "./validation";
 
+function mapBooking(row: Record<string, unknown>): Booking {
+  return { id: String(row.id), profileId: row.profile_id ? String(row.profile_id) : undefined, reference: String(row.reference), serviceId: String(row.service_id), serviceName: String(row.service_name), date: String(row.date), time: String(row.time).slice(0, 5), clientName: String(row.client_name), phone: String(row.phone), comment: row.comment ? String(row.comment) : undefined, status: row.status as Booking["status"], createdAt: String(row.created_at) };
+}
+
 export async function createServerBooking(input: BookingInput) {
-  const date = new Date(`${input.date}T12:00:00`);
-  const rule = demoAvailability.find((item) => item.weekday === date.getDay());
-  if (!rule) throw new Error("В этот день записи нет");
   if (isPastSlot(input.date, input.time)) throw new Error("Нельзя выбрать время в прошлом");
+
+  if (isSupabaseConfigured()) {
+    if (!input.profileId) throw new Error("Профиль не найден");
+    const supabase = await createClient();
+    const [{ data: profile }, { data: service }] = await Promise.all([
+      supabase.from("profiles").select("id,is_published").eq("id", input.profileId).eq("is_published", true).maybeSingle(),
+      supabase.from("services").select("id,name,profile_id,active").eq("id", input.serviceId).eq("profile_id", input.profileId).eq("active", true).maybeSingle(),
+    ]);
+    if (!profile || !service) throw new Error("Услуга или профиль недоступны");
+    const { data, error } = await supabase.from("bookings").insert({ profile_id: input.profileId, service_id: input.serviceId, service_name: service.name, date: input.date, time: input.time, client_name: input.clientName, phone: input.phone, comment: input.comment || null }).select("*").single();
+    if (error) {
+      if (error.code === "23505") throw new Error("Этот слот уже занят");
+      throw error;
+    }
+    return mapBooking(data);
+  }
+
+  const date = new Date(`${input.date}T12:00:00`);
+  if (!demoAvailability.some((item) => item.weekday === date.getDay())) throw new Error("В этот день записи нет");
   const repository = getDemoRepository();
   const bookings = await repository.listBookings(input.date);
   if (bookings.some((booking) => booking.time === input.time && booking.status !== "cancelled")) throw new Error("Этот слот уже занят");

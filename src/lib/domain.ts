@@ -2,6 +2,7 @@ export type BookingStatus = "new" | "confirmed" | "cancelled";
 
 export type Service = {
   id: string;
+  profileId?: string;
   name: string;
   description: string;
   durationMinutes: number;
@@ -19,6 +20,7 @@ export type AvailabilityRule = {
 
 export type Booking = {
   id: string;
+  profileId?: string;
   reference: string;
   serviceId: string;
   serviceName: string;
@@ -32,15 +34,19 @@ export type Booking = {
 };
 
 export type Profile = {
+  id?: string;
+  userId?: string;
   name: string;
   slug: string;
   eyebrow: string;
   description: string;
   address: string;
   phone: string;
+  isPublished?: boolean;
 };
 
 export type BookingInput = {
+  profileId?: string;
   serviceId: string;
   date: string;
   time: string;

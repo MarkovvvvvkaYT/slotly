@@ -12,7 +12,7 @@ export default function HomePage() {
         <div className="flex items-center gap-5 text-sm font-semibold text-[var(--muted)]">
           <a href="#services" className="hidden transition hover:text-[var(--ink)] sm:block">Услуги</a>
           <a href="#how" className="hidden transition hover:text-[var(--ink)] sm:block">Как это работает</a>
-          <Link href="/admin" className="rounded-full border border-[var(--line)] bg-white px-4 py-2 transition hover:border-[var(--accent)]">Для владельца</Link>
+          <Link href="/register" className="rounded-full border border-[var(--line)] bg-white px-4 py-2 transition hover:border-[var(--accent)]">Создать свой профиль</Link>
         </div>
       </nav>
 

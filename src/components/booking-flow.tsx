@@ -1,30 +1,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Service } from "@/src/lib/domain";
+import type { AvailabilityRule, Booking, Service } from "@/src/lib/domain";
 import { demoAvailability, demoBookings } from "@/src/lib/demo-data";
 
-type Props = { services: Service[] };
+type Props = { services: Service[]; availability?: AvailabilityRule[]; profileId?: string; bookings?: Booking[] };
 
 const weekdayNames = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const monthNames = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
 
-function datesForBooking() {
+function datesForBooking(availability: AvailabilityRule[]) {
   const dates: string[] = [];
   const current = new Date();
   current.setHours(12, 0, 0, 0);
   for (let offset = 1; offset <= 21; offset += 1) {
     const candidate = new Date(current);
     candidate.setDate(current.getDate() + offset);
-    if (demoAvailability.some((rule) => rule.weekday === candidate.getDay())) dates.push(candidate.toISOString().slice(0, 10));
+    if (availability.some((rule) => rule.weekday === candidate.getDay())) dates.push(candidate.toISOString().slice(0, 10));
   }
   return dates;
 }
 
-function slotsFor(date: string, service?: Service) {
+function slotsFor(date: string, service: Service | undefined, availability: AvailabilityRule[], bookings: Booking[]) {
   if (!service) return [];
   const day = new Date(`${date}T12:00:00`).getDay();
-  const rule = demoAvailability.find((item) => item.weekday === day);
+  const rule = availability.find((item) => item.weekday === day);
   if (!rule) return [];
   const slots: string[] = [];
   const [startHour, startMinute] = rule.start.split(":").map(Number);
@@ -34,14 +34,14 @@ function slotsFor(date: string, service?: Service) {
   for (let minute = start; minute <= end; minute += 30) {
     const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
     const inBreak = rule.breakStart && rule.breakEnd && time >= rule.breakStart && time < rule.breakEnd;
-    const occupied = demoBookings.some((booking) => booking.date === date && booking.time === time && booking.status !== "cancelled");
+    const occupied = bookings.some((booking) => booking.date === date && booking.time === time && booking.status !== "cancelled");
     if (!inBreak && !occupied) slots.push(time);
   }
   return slots;
 }
 
-export function BookingFlow({ services }: Props) {
-  const dates = useMemo(() => datesForBooking(), []);
+export function BookingFlow({ services, availability = demoAvailability, profileId, bookings = demoBookings }: Props) {
+  const dates = useMemo(() => datesForBooking(availability), [availability]);
   const [selectedService, setSelectedService] = useState(services[0]?.id ?? "");
   const [selectedDate, setSelectedDate] = useState(dates[0] ?? "");
   const [selectedTime, setSelectedTime] = useState("");
@@ -52,14 +52,14 @@ export function BookingFlow({ services }: Props) {
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
   const service = services.find((item) => item.id === selectedService);
-  const slots = slotsFor(selectedDate, service);
+  const slots = slotsFor(selectedDate, service, availability, bookings);
 
   function chooseDate(date: string) { setSelectedDate(date); setSelectedTime(""); }
   function nextStep() { setError(""); if (step === 1 && !selectedService) return setError("Выберите услугу"); if (step === 2 && !selectedTime) return setError("Выберите свободное время"); setStep((value) => Math.min(3, value + 1) as 1 | 2 | 3); }
   async function submit() {
     setError("");
     try {
-      const response = await fetch("/api/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ serviceId: selectedService, date: selectedDate, time: selectedTime, clientName: name, phone, comment }) });
+      const response = await fetch("/api/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profileId, serviceId: selectedService, date: selectedDate, time: selectedTime, clientName: name, phone, comment }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Не удалось создать запись");
       setReference(result.reference);

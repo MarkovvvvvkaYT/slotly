@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { notifyTelegram } from "../../../src/lib/telegram";
-import { createServerBooking } from "../../../src/lib/server-bookings";
-import { bookingSchema } from "../../../src/lib/validation";
+import { notifyTelegram } from "@/src/lib/telegram";
+import { createServerBooking } from "@/src/lib/server-bookings";
+import { bookingSchema } from "@/src/lib/validation";
 
 export async function POST(request: Request) {
   try {
