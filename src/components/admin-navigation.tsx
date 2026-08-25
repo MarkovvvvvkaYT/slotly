@@ -1,0 +1,3 @@
+import Link from "next/link";
+const links = [["/admin", "Обзор"], ["/admin/bookings", "Заявки"], ["/admin/calendar", "Календарь"], ["/admin/services", "Услуги"], ["/admin/profile", "Профиль"]] as const;
+export function AdminNavigation({ current }: { current: string }) { return <nav aria-label="Разделы панели" className="mb-8 flex gap-2 overflow-x-auto pb-2">{links.map(([href,label])=><Link key={href} href={href} className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold ${current===href?"border-[var(--brand)] bg-blue-50 text-[var(--brand)] dark:bg-blue-500/15":"border-[var(--line)] text-[var(--muted)] hover:border-[var(--brand)]"}`}>{label}</Link>)}</nav>; }
