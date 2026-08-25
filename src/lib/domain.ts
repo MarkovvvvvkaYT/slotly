@@ -42,6 +42,10 @@ export type Profile = {
   description: string;
   address: string;
   phone: string;
+  category?: string;
+  city?: string;
+  avatarPath?: string;
+  coverPath?: string;
   isPublished?: boolean;
 };
 

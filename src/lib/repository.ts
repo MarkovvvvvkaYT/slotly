@@ -15,7 +15,7 @@ export function getDemoRepository(): BookingRepository {
       if (occupied) throw new Error("Этот слот уже занят");
       const booking: Booking = {
         id: `demo-${Date.now()}`,
-        reference: `VE-${Math.floor(1000 + Math.random() * 8999)}`,
+        reference: `SL-${Math.floor(1000 + Math.random() * 8999)}`,
         serviceId: service.id,
         serviceName: service.name,
         date: input.date,

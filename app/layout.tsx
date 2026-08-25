@@ -5,11 +5,15 @@ import { site } from "@/src/lib/site";
 export const metadata: Metadata = {
   title: site.title,
   description: site.description,
+  metadataBase: new URL("https://slotly-online.vercel.app"),
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem('slotly-theme')||'system';document.documentElement.dataset.theme=t}catch(e){}})()" }} />
+      </head>
       <body>{children}</body>
     </html>
   );

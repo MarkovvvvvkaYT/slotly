@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AvailabilityRule, Booking, Service } from "@/src/lib/domain";
 import { demoAvailability, demoBookings } from "@/src/lib/demo-data";
+import { getAvailableSlots } from "@/src/lib/availability";
 
 type Props = { services: Service[]; availability?: AvailabilityRule[]; profileId?: string; bookings?: Booking[] };
 
@@ -21,23 +22,12 @@ function datesForBooking(availability: AvailabilityRule[]) {
   return dates;
 }
 
-function slotsFor(date: string, service: Service | undefined, availability: AvailabilityRule[], bookings: Booking[]) {
+function slotsFor(date: string, service: Service | undefined, availability: AvailabilityRule[], bookings: Booking[], services: Service[]) {
   if (!service) return [];
   const day = new Date(`${date}T12:00:00`).getDay();
   const rule = availability.find((item) => item.weekday === day);
   if (!rule) return [];
-  const slots: string[] = [];
-  const [startHour, startMinute] = rule.start.split(":").map(Number);
-  const [endHour, endMinute] = rule.end.split(":").map(Number);
-  const start = startHour * 60 + startMinute;
-  const end = endHour * 60 + endMinute - service.durationMinutes;
-  for (let minute = start; minute <= end; minute += 30) {
-    const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
-    const inBreak = rule.breakStart && rule.breakEnd && time >= rule.breakStart && time < rule.breakEnd;
-    const occupied = bookings.some((booking) => booking.date === date && booking.time === time && booking.status !== "cancelled");
-    if (!inBreak && !occupied) slots.push(time);
-  }
-  return slots;
+  return getAvailableSlots(rule, service.durationMinutes, bookings.filter((booking) => booking.date === date && booking.status !== "cancelled").map((booking) => ({ time: booking.time, durationMinutes: services.find((item) => item.id === booking.serviceId)?.durationMinutes ?? 30 })));
 }
 
 export function BookingFlow({ services, availability = demoAvailability, profileId, bookings = demoBookings }: Props) {
@@ -52,7 +42,7 @@ export function BookingFlow({ services, availability = demoAvailability, profile
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
   const service = services.find((item) => item.id === selectedService);
-  const slots = slotsFor(selectedDate, service, availability, bookings);
+  const slots = slotsFor(selectedDate, service, availability, bookings, services);
 
   function chooseDate(date: string) { setSelectedDate(date); setSelectedTime(""); }
   function nextStep() { setError(""); if (step === 1 && !selectedService) return setError("Выберите услугу"); if (step === 2 && !selectedTime) return setError("Выберите свободное время"); setStep((value) => Math.min(3, value + 1) as 1 | 2 | 3); }

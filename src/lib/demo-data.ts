@@ -6,6 +6,8 @@ export const demoProfile: Profile = {
   eyebrow: "Студия ухода и макияжа",
   description: "Бережный уход, аккуратный образ и понятная запись без переписок туда-сюда.",
   address: "Новосибирск · Красный проспект, 42",
+  category: "beauty",
+  city: "Новосибирск",
   phone: "+7 (913) 555-42-18",
 };
 
@@ -31,9 +33,9 @@ const nextDate = (offset: number) => {
 };
 
 export const demoBookings: Booking[] = [
-  { id: "b-1001", reference: "VE-8421", serviceId: "makeup", serviceName: "Макияж на событие", date: nextDate(1), time: "12:00", clientName: "Мария К.", phone: "+7 (999) 123-45-67", comment: "Нужен образ к фотосессии", status: "confirmed", createdAt: new Date().toISOString() },
-  { id: "b-1002", reference: "VE-8422", serviceId: "face", serviceName: "Уход за лицом", date: nextDate(1), time: "16:00", clientName: "Ольга С.", phone: "+7 (999) 765-43-21", status: "new", createdAt: new Date().toISOString() },
-  { id: "b-1003", reference: "VE-8423", serviceId: "brows", serviceName: "Брови и укладка", date: nextDate(2), time: "11:00", clientName: "Ксения Л.", phone: "+7 (999) 111-22-33", status: "new", createdAt: new Date().toISOString() },
+  { id: "b-1001", reference: "SL-8421", serviceId: "makeup", serviceName: "Макияж на событие", date: nextDate(1), time: "12:00", clientName: "Мария К.", phone: "+7 (999) 123-45-67", comment: "Нужен образ к фотосессии", status: "confirmed", createdAt: new Date().toISOString() },
+  { id: "b-1002", reference: "SL-8422", serviceId: "face", serviceName: "Уход за лицом", date: nextDate(1), time: "16:00", clientName: "Ольга С.", phone: "+7 (999) 765-43-21", status: "new", createdAt: new Date().toISOString() },
+  { id: "b-1003", reference: "SL-8423", serviceId: "brows", serviceName: "Брови и укладка", date: nextDate(2), time: "11:00", clientName: "Ксения Л.", phone: "+7 (999) 111-22-33", status: "new", createdAt: new Date().toISOString() },
 ];
 
 export function getLocalDate(offset = 1) {

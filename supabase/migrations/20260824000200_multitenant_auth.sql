@@ -39,7 +39,7 @@ create table public.availability_rules (
 
 create table public.bookings (
   id uuid primary key default gen_random_uuid(),
-  reference text not null unique default ('VE-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6))),
+  reference text not null unique default ('SL-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6))),
   profile_id uuid not null references public.profiles(id) on delete cascade,
   service_id uuid not null references public.services(id),
   service_name text not null,
