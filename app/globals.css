@@ -26,6 +26,9 @@
   border-color: rgb(255 255 255 / 0.7) !important;
 }
 
+main.consumer-theme { --brand: #ef6b4a; }
+:root[data-theme="dark"] main.consumer-theme { --brand: #ff886d; }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; transition: background-color .2s ease, color .2s ease; }
