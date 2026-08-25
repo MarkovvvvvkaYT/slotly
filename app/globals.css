@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #18213a;
-  --muted: #667085;
-  --paper: #fffdf9;
-  --card: #ffffff;
-  --line: #e7e1d8;
-  --brand: #1769ff;
+  --ink: #1f2522;
+  --muted: #6e746d;
+  --paper: #f5f2eb;
+  --card: #fffcf6;
+  --line: #ded8ce;
+  --brand: #1e5d4d;
   --accent: #ef6b4a;
-  --accent-dark: #cc4e31;
-  --mint: #e4f0eb;
-  --soft: #fff4e9;
+  --accent-dark: #c5503c;
+  --mint: #dcece2;
+  --soft: #f8e7df;
   color-scheme: light;
 }
 
-:root[data-theme="dark"] { --ink: #f1f5ff; --muted: #aeb9d0; --paper: #0d1424; --card: #151f35; --line: #2a3958; --brand: #72a7ff; --accent: #ff886d; --accent-dark: #ffae9c; --mint: #183d43; --soft: #211d2d; color-scheme: dark; }
-@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --ink: #f1f5ff; --muted: #aeb9d0; --paper: #0d1424; --card: #151f35; --line: #2a3958; --brand: #72a7ff; --accent: #ff886d; --accent-dark: #ffae9c; --mint: #183d43; --soft: #211d2d; color-scheme: dark; } }
+:root[data-theme="dark"] { --ink: #f4eee3; --muted: #b5b7aa; --paper: #141916; --card: #1d2420; --line: #36413a; --brand: #9bc5ac; --accent: #ff9279; --accent-dark: #ffc0af; --mint: #214338; --soft: #352422; color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --ink: #f4eee3; --muted: #b5b7aa; --paper: #141916; --card: #1d2420; --line: #36413a; --brand: #9bc5ac; --accent: #ff9279; --accent-dark: #ffc0af; --mint: #214338; --soft: #352422; color-scheme: dark; } }
 
 /* Tailwind's dark: utilities follow the OS, while Slotly can be explicitly light. */
 :root[data-theme="light"] main > section > aside[class*="min-h-72"] {
