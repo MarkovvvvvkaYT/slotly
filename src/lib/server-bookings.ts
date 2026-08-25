@@ -21,12 +21,13 @@ export async function createServerBooking(input: BookingInput) {
       supabase.from("services").select("id,name,profile_id,active,duration_minutes").eq("id", input.serviceId).eq("profile_id", input.profileId).eq("active", true).maybeSingle(),
     ]);
     if (!profile || !service) throw new Error("Услуга или профиль недоступны");
-    const [{ data: rule }, { data: bookingRows }] = await Promise.all([
+    const [{ data: rule }, { data: bookingRows, error: bookingError }] = await Promise.all([
       supabase.from("availability_rules").select("start_time,end_time,break_start,break_end").eq("profile_id", input.profileId).eq("weekday", new Date(`${input.date}T12:00:00`).getDay()).maybeSingle(),
-      supabase.from("bookings").select("time,service:services(duration_minutes)").eq("profile_id", input.profileId).eq("date", input.date).neq("status", "cancelled"),
+      supabase.rpc("get_occupied_booking_slots", { p_profile_id: input.profileId, p_date: input.date }),
     ]);
     if (!rule) throw new Error("В этот день записи нет");
-    const available = getAvailableSlots({ start: String(rule.start_time).slice(0, 5), end: String(rule.end_time).slice(0, 5), breakStart: rule.break_start ? String(rule.break_start).slice(0, 5) : undefined, breakEnd: rule.break_end ? String(rule.break_end).slice(0, 5) : undefined }, Number(service.duration_minutes), (bookingRows ?? []).map((booking) => ({ time: String(booking.time).slice(0, 5), durationMinutes: Number((booking.service as { duration_minutes?: number } | null)?.duration_minutes ?? 30) })));
+    if (bookingError) throw new Error("Не удалось проверить занятость времени");
+    const available = getAvailableSlots({ start: String(rule.start_time).slice(0, 5), end: String(rule.end_time).slice(0, 5), breakStart: rule.break_start ? String(rule.break_start).slice(0, 5) : undefined, breakEnd: rule.break_end ? String(rule.break_end).slice(0, 5) : undefined }, Number(service.duration_minutes), ((bookingRows ?? []) as { start_time: string; duration_minutes: number }[]).map((booking) => ({ time: String(booking.start_time).slice(0, 5), durationMinutes: Number(booking.duration_minutes) })));
     if (!available.includes(input.time)) throw new Error("Этот слот уже занят");
     const { data, error } = await supabase.from("bookings").insert({ profile_id: input.profileId, service_id: input.serviceId, service_name: service.name, date: input.date, time: input.time, client_name: input.clientName, phone: input.phone, comment: input.comment || null }).select("*").single();
     if (error) {

@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AvailabilityRule, Booking, Service } from "@/src/lib/domain";
 import { demoAvailability, demoBookings } from "@/src/lib/demo-data";
 import { getAvailableSlots } from "@/src/lib/availability";
+import { createClient } from "@/src/lib/supabase/client";
 
 type Props = { services: Service[]; availability?: AvailabilityRule[]; profileId?: string; bookings?: Booking[] };
+type OccupiedBooking = Booking & { durationMinutes?: number };
+type OccupiedSlot = { start_time: string; duration_minutes: number };
 
 const weekdayNames = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const monthNames = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
@@ -22,12 +25,12 @@ function datesForBooking(availability: AvailabilityRule[]) {
   return dates;
 }
 
-function slotsFor(date: string, service: Service | undefined, availability: AvailabilityRule[], bookings: Booking[], services: Service[]) {
+function slotsFor(date: string, service: Service | undefined, availability: AvailabilityRule[], bookings: OccupiedBooking[], services: Service[]) {
   if (!service) return [];
   const day = new Date(`${date}T12:00:00`).getDay();
   const rule = availability.find((item) => item.weekday === day);
   if (!rule) return [];
-  return getAvailableSlots(rule, service.durationMinutes, bookings.filter((booking) => booking.date === date && booking.status !== "cancelled").map((booking) => ({ time: booking.time, durationMinutes: services.find((item) => item.id === booking.serviceId)?.durationMinutes ?? 30 })));
+  return getAvailableSlots(rule, service.durationMinutes, bookings.filter((booking) => booking.date === date && booking.status !== "cancelled").map((booking) => ({ time: booking.time, durationMinutes: booking.durationMinutes ?? services.find((item) => item.id === booking.serviceId)?.durationMinutes ?? 30 })));
 }
 
 export function BookingFlow({ services, availability = demoAvailability, profileId, bookings = demoBookings }: Props) {
@@ -41,8 +44,21 @@ export function BookingFlow({ services, availability = demoAvailability, profile
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
+  const [occupiedBookings, setOccupiedBookings] = useState(bookings);
   const service = services.find((item) => item.id === selectedService);
-  const slots = slotsFor(selectedDate, service, availability, bookings, services);
+  const slots = slotsFor(selectedDate, service, availability, occupiedBookings, services);
+
+  useEffect(() => {
+    if (!profileId || !selectedDate) return;
+    let active = true;
+    async function loadOccupiedSlots() {
+      const { data, error: loadError } = await createClient().rpc("get_occupied_booking_slots", { p_profile_id: profileId, p_date: selectedDate });
+      if (loadError || !active) return;
+      setOccupiedBookings(((data ?? []) as OccupiedSlot[]).map((item) => ({ id: `${selectedDate}-${item.start_time}`, profileId, reference: "", serviceId: "", serviceName: "", date: selectedDate, time: String(item.start_time).slice(0, 5), clientName: "", phone: "", status: "new", createdAt: "", durationMinutes: Number(item.duration_minutes) })));
+    }
+    void loadOccupiedSlots();
+    return () => { active = false; };
+  }, [profileId, selectedDate]);
 
   function chooseDate(date: string) { setSelectedDate(date); setSelectedTime(""); }
   function nextStep() { setError(""); if (step === 1 && !selectedService) return setError("Выберите услугу"); if (step === 2 && !selectedTime) return setError("Выберите свободное время"); setStep((value) => Math.min(3, value + 1) as 1 | 2 | 3); }
