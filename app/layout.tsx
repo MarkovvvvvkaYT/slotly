@@ -14,7 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem('slotly-theme')||'system';document.documentElement.dataset.theme=t}catch(e){}})()" }} />
       </head>
-      <body>{children}</body>
+      <body><a href="#main-content" className="skip-link">Перейти к содержанию</a>{children}</body>
     </html>
   );
 }

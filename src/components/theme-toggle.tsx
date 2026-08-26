@@ -8,7 +8,11 @@ const labels: Record<Theme, string> = { light: "Светлая тема", dark: 
 const nextTheme: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "system";
+    const saved = window.localStorage.getItem("slotly-theme");
+    return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+  });
 
   function toggleTheme() {
     const current = document.documentElement.dataset.theme;
@@ -18,6 +22,6 @@ export function ThemeToggle() {
     document.documentElement.dataset.theme = value;
   }
 
-  const icon = theme === "dark" ? "☾" : theme === "light" ? "☀" : "◐";
-  return <button type="button" onClick={toggleTheme} aria-label={labels[theme]} title={labels[theme]} className="focus-ring theme-toggle">{icon}<span className="sr-only">{labels[theme]}</span></button>;
+  const icon = theme === "dark" ? "Т" : theme === "light" ? "С" : "А";
+  return <button type="button" onClick={toggleTheme} aria-label={labels[theme]} title={`${labels[theme]}. Нажмите, чтобы сменить`} className="focus-ring theme-toggle"><span aria-hidden>{icon}</span><span className="sr-only">{labels[theme]}</span></button>;
 }
