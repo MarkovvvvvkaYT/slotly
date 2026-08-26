@@ -12,9 +12,9 @@ export const demoProfile: Profile = {
 };
 
 export const demoServices: Service[] = [
-  { id: "face", name: "Уход за лицом", description: "Диагностика, очищение и увлажнение под состояние кожи.", durationMinutes: 60, priceLabel: "2 800 ₽", active: true },
-  { id: "makeup", name: "Макияж на событие", description: "Стойкий образ для встречи, съёмки или важного вечера.", durationMinutes: 90, priceLabel: "3 500 ₽", active: true },
-  { id: "brows", name: "Брови и укладка", description: "Форма, окрашивание и лёгкая укладка без лишнего.", durationMinutes: 45, priceLabel: "1 600 ₽", active: true },
+  { id: "face", name: "Уход за лицом", description: "Диагностика, очищение и увлажнение под состояние кожи.", durationMinutes: 60, priceLabel: "2 800 ₽", category: "beauty", active: true },
+  { id: "makeup", name: "Макияж на событие", description: "Стойкий образ для встречи, съёмки или важного вечера.", durationMinutes: 90, priceLabel: "3 500 ₽", category: "beauty", active: true },
+  { id: "brows", name: "Брови и укладка", description: "Форма, окрашивание и лёгкая укладка без лишнего.", durationMinutes: 45, priceLabel: "1 600 ₽", category: "beauty", active: true },
 ];
 
 export const demoAvailability: AvailabilityRule[] = [

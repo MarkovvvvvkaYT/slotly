@@ -12,7 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem('slotly-theme')||'system';document.documentElement.dataset.theme=t}catch(e){}})()" }} />
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem('slotly-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}})()" }} />
       </head>
       <body id="main-content"><a href="#main-content" className="skip-link">Перейти к содержанию</a>{children}</body>
     </html>

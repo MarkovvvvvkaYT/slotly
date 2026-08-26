@@ -6,7 +6,7 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(false);
   function toggleTheme() {
     const current = document.documentElement.dataset.theme;
-    const systemDark = current === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const systemDark = !current && window.matchMedia("(prefers-color-scheme: dark)").matches;
     const next = current === "dark" || systemDark ? "light" : "dark";
     setDark(next === "dark");
     window.localStorage.setItem("slotly-theme", next);

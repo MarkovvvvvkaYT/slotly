@@ -22,7 +22,7 @@ async function mediaUrl(path: string | null | undefined, supabase: Awaited<Retur
 
 async function mapService(row: Record<string, unknown>, supabase?: Awaited<ReturnType<typeof createClient>>): Promise<Service> {
   const imagePath = row.image_path ? String(row.image_path) : undefined;
-  return { id: String(row.id), profileId: String(row.profile_id), name: String(row.name), description: String(row.description ?? ""), durationMinutes: Number(row.duration_minutes), priceLabel: String(row.price_label ?? ""), imagePath: supabase && imagePath ? await mediaUrl(imagePath, supabase) : imagePath, active: Boolean(row.active) };
+  return { id: String(row.id), profileId: String(row.profile_id), name: String(row.name), description: String(row.description ?? ""), durationMinutes: Number(row.duration_minutes), priceLabel: String(row.price_label ?? ""), category: String(row.category ?? "other"), imagePath: supabase && imagePath ? await mediaUrl(imagePath, supabase) : imagePath, active: Boolean(row.active) };
 }
 
 export async function getOwnerData(): Promise<OwnerData | null> {
@@ -73,7 +73,7 @@ export async function getCatalogProfiles(filters: CatalogFilters = {}): Promise<
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id,name,slug,category,city,description,avatar_path,cover_path,services(id,name,description,duration_minutes,price_label,active,image_path)")
+    .select("id,name,slug,category,city,description,avatar_path,cover_path,services(id,name,description,duration_minutes,price_label,category,active,image_path)")
     .eq("is_published", true)
     .order("created_at", { ascending: false });
   if (error || !data) return [];

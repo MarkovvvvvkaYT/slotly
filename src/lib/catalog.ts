@@ -31,7 +31,7 @@ function normalized(value: string | undefined) {
   return value?.trim().toLocaleLowerCase("ru-RU") ?? "";
 }
 
-export function getCategoryLabel(category: string) {
+export function getCategoryLabel(category?: string) {
   return profileCategories.find((item) => item.value === category)?.label ?? "Другое";
 }
 
@@ -41,7 +41,8 @@ export function filterCatalogProfiles(profiles: CatalogProfile[], filters: Catal
   const city = normalized(filters.city);
   const result = profiles.filter((profile) => {
     const matchesQuery = !query || [profile.name, profile.city, profile.category, getCategoryLabel(profile.category), ...profile.services.filter((service) => service.active).flatMap((service) => [service.name, service.description])].some((value) => normalized(value).includes(query));
-    return matchesQuery && (!category || profile.category === category) && (!city || normalized(profile.city).includes(city));
+    const matchesCategory = !category || profile.category === category || profile.services.some((service) => service.active && service.category === category);
+    return matchesQuery && matchesCategory && (!city || normalized(profile.city).includes(city));
   });
   return filters.limit ? result.slice(0, filters.limit) : result;
 }

@@ -7,6 +7,7 @@ export type Service = {
   description: string;
   durationMinutes: number;
   priceLabel: string;
+  category?: string;
   imagePath?: string;
   active: boolean;
 };
