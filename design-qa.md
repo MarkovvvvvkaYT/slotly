@@ -19,6 +19,9 @@
 - [x] Applied a consistent blue specialist workspace and fixed the public-link card's contrast.
 - [x] Added custom cross-browser scrollbars, including horizontal category strips.
 - [x] Verified category filtering, service media, and the booking date/time step in a browser.
+- [x] Verified explicit light/dark theme coverage on the public profile, role-aware registration, and customer/specialist cross-navigation in production.
+- [x] Added customer-only onboarding trigger behavior and specialist onboarding for an existing authenticated identity.
+- [x] Catalogue cards now prefer uploaded cover or avatar media before the initial-letter fallback.
 
 **Follow-up Polish**
 
@@ -43,5 +46,6 @@
 
 1. Initial full-view browser capture found the P1 contrast issue in the hero under dark system preference. It was fixed by containing the scene and introducing the warm-white content panel.
 2. Revised light-theme capture and the combined comparison above found no remaining actionable P0/P1/P2 fidelity issue.
+3. Second pass strengthened dark tokens, removed the public-profile placeholder copy, reduced profile whitespace, and smoke-tested `/`, `/p/test`, `/register?role=customer`, `/register?role=specialist`, `/account`, and `/for-specialists` after deployment.
 
 final result: passed
