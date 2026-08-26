@@ -24,13 +24,13 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   const location = [profile.city, profile.address].filter(Boolean).join(" · ") || "Онлайн";
 
   return (
-    <main className="min-h-screen bg-[#fbfaf7] text-[#17191f]" style={publicTheme}>
-      <nav className="border-b border-[#e6e3dc] bg-[#fbfaf7]/95">
+    <main className="public-profile-theme min-h-screen bg-[var(--paper)] text-[var(--ink)]" style={publicTheme}>
+      <nav className="border-b border-[var(--line)] bg-[var(--paper)]/95">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 lg:px-8">
           <SlotlyLogo className="text-[#1754d1]" />
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link href="/register" className="focus-ring hidden rounded-lg bg-[#1754d1] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#103e9d] sm:inline-flex">
+            <Link href="/register?role=customer" className="focus-ring hidden rounded-lg bg-[#1754d1] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#103e9d] sm:inline-flex">
               Начать бесплатно
             </Link>
           </div>
@@ -38,8 +38,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       </nav>
 
       <section className="mx-auto max-w-6xl px-5 pb-14 pt-8 lg:px-8 lg:pt-12">
-        <div className="grid overflow-hidden rounded-2xl border border-[#e6e3dc] bg-white lg:grid-cols-[1.03fr_.97fr]">
-          <div className="flex min-h-[340px] flex-col justify-between p-7 sm:p-10">
+        <div className="grid overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)] lg:grid-cols-[1.03fr_.97fr]">
+          <div className="flex min-h-[280px] flex-col justify-between p-7 sm:p-8">
             <div>
               <div className="flex items-center gap-4">
                 <div
@@ -53,11 +53,9 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                   <h1 className="mt-1 text-balance text-3xl font-bold tracking-[-0.035em] sm:text-5xl">{profile.name}</h1>
                 </div>
               </div>
-              <p className="mt-7 max-w-xl text-pretty text-base leading-7 text-[#52565f] sm:text-lg">
-                {profile.description || "Выберите услугу и подходящее время — подтверждение придёт сразу после записи."}
-              </p>
+              {profile.description && profile.description !== "Расскажите клиентам, чем вы можете помочь." && <p className="mt-5 max-w-xl text-pretty text-base leading-7 text-[#52565f] sm:text-lg">{profile.description}</p>}
             </div>
-            <div className="mt-9 flex flex-wrap gap-2 text-sm">
+            <div className="mt-7 flex flex-wrap gap-2 text-sm">
               <span className="rounded-full bg-[#e8efff] px-3 py-1.5 font-semibold text-[#1754d1]">Принимает онлайн</span>
               <span className="rounded-full bg-[#f3f3f0] px-3 py-1.5 font-medium text-[#545861]">{services.length} {services.length === 1 ? "услуга" : "услуг"}</span>
             </div>
@@ -80,8 +78,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <footer className="border-t border-[#e6e3dc] bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-7 text-sm text-[#626671] lg:px-8">
+      <footer className="border-t border-[var(--line)] bg-[var(--card)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-7 text-sm text-[var(--muted)] lg:px-8">
           <span>Онлайн-запись через Slotly</span>
           <Link href="/" className="font-semibold text-[#1754d1]">На главную</Link>
         </div>
