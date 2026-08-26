@@ -16,6 +16,8 @@ export async function createServerBooking(input: BookingInput) {
   if (isSupabaseConfigured()) {
     if (!input.profileId) throw new Error("Профиль не найден");
     const supabase = await createClient();
+    const { data: claims } = typeof supabase.auth?.getClaims === "function" ? await supabase.auth.getClaims() : { data: null };
+    const clientUserId = claims?.claims?.sub ? String(claims.claims.sub) : null;
     const [{ data: profile }, { data: service }] = await Promise.all([
       supabase.from("profiles").select("id,is_published").eq("id", input.profileId).eq("is_published", true).maybeSingle(),
       supabase.from("services").select("id,name,profile_id,active,duration_minutes").eq("id", input.serviceId).eq("profile_id", input.profileId).eq("active", true).maybeSingle(),
@@ -29,7 +31,7 @@ export async function createServerBooking(input: BookingInput) {
     if (bookingError) throw new Error("Не удалось проверить занятость времени");
     const available = getAvailableSlots({ start: String(rule.start_time).slice(0, 5), end: String(rule.end_time).slice(0, 5), breakStart: rule.break_start ? String(rule.break_start).slice(0, 5) : undefined, breakEnd: rule.break_end ? String(rule.break_end).slice(0, 5) : undefined }, Number(service.duration_minutes), ((bookingRows ?? []) as { start_time: string; duration_minutes: number }[]).map((booking) => ({ time: String(booking.start_time).slice(0, 5), durationMinutes: Number(booking.duration_minutes) })));
     if (!available.includes(input.time)) throw new Error("Этот слот уже занят");
-    const { data, error } = await supabase.from("bookings").insert({ profile_id: input.profileId, service_id: input.serviceId, service_name: service.name, date: input.date, time: input.time, client_name: input.clientName, phone: input.phone, comment: input.comment || null }).select("*").single();
+    const { data, error } = await supabase.from("bookings").insert({ profile_id: input.profileId, service_id: input.serviceId, service_name: service.name, date: input.date, time: input.time, client_name: input.clientName, phone: input.phone, comment: input.comment || null, client_user_id: clientUserId }).select("*").single();
     if (error) {
       if (error.code === "23505") throw new Error("Этот слот уже занят");
       throw error;
