@@ -8,11 +8,7 @@ const labels: Record<Theme, string> = { light: "Светлая тема", dark: 
 const nextTheme: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "system";
-    const saved = window.localStorage.getItem("slotly-theme");
-    return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
-  });
+  const [theme, setTheme] = useState<Theme>("system");
 
   function toggleTheme() {
     const current = document.documentElement.dataset.theme;
