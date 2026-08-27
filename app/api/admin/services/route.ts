@@ -116,9 +116,10 @@ export async function PATCH(request: Request) {
       { error: "Проверьте данные услуги" },
       { status: 400 },
     );
-  const { id, durationMinutes, imagePath, ...rest } = parsed.data;
+  const { id, durationMinutes, imagePath, priceLabel, ...rest } = parsed.data;
   const updates = {
     ...rest,
+    ...(priceLabel !== undefined ? { price_label: priceLabel } : {}),
     ...(durationMinutes !== undefined
       ? { duration_minutes: durationMinutes }
       : {}),
