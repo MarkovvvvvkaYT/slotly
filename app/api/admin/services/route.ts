@@ -149,7 +149,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
   const { data, error } = await supabase
     .from("services")
-    .update({ active: false })
+    .update({ deleted_at: new Date().toISOString() })
     .eq("id", body.id)
     .eq("profile_id", profile.id)
     .select("id")

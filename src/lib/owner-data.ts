@@ -34,7 +34,7 @@ export async function getOwnerData(): Promise<OwnerData | null> {
   const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
   if (profileError || !profile) return null;
   const [{ data: serviceRows }, { data: availabilityRows }, { data: bookingRows }] = await Promise.all([
-    supabase.from("services").select("*").eq("profile_id", profile.id).order("created_at"),
+    supabase.from("services").select("*").eq("profile_id", profile.id).is("deleted_at", null).order("created_at"),
     supabase.from("availability_rules").select("*").eq("profile_id", profile.id).order("weekday"),
     supabase.from("bookings").select("*").eq("profile_id", profile.id).order("date").order("time"),
   ]);
@@ -53,7 +53,7 @@ export async function getPublicProfile(slug: string): Promise<OwnerData | null> 
   const { data: profile, error } = await supabase.from("profiles").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
   if (error || !profile) return null;
   const [{ data: serviceRows }, { data: availabilityRows }] = await Promise.all([
-    supabase.from("services").select("*").eq("profile_id", profile.id).eq("active", true).order("created_at"),
+    supabase.from("services").select("*").eq("profile_id", profile.id).eq("active", true).is("deleted_at", null).order("created_at"),
     supabase.from("availability_rules").select("*").eq("profile_id", profile.id).order("weekday"),
   ]);
   const [avatarPath, coverPath] = await Promise.all([mediaUrl(profile.avatar_path, supabase), mediaUrl(profile.cover_path, supabase)]);
