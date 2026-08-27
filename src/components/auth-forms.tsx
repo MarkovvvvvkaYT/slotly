@@ -10,9 +10,53 @@ function Field({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> 
 
 export function LoginForm() {
   const router = useRouter(); const params = useSearchParams();
-  const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
-  async function submit(event: React.FormEvent) { event.preventDefault(); setLoading(true); setError(""); const { data, error: signInError } = await createClient().auth.signInWithPassword({ email, password }); if (signInError) { setError("Неверный email или пароль"); setLoading(false); return; } const requestedRole = params.get("role"); if (requestedRole === "specialist") { const onboarding = await fetch("/api/onboarding/specialist", { method: "POST" }); if (!onboarding.ok) { setError("Не удалось открыть кабинет специалиста"); setLoading(false); return; } } const type = data.user?.user_metadata?.account_type; router.push(params.get("next") || (requestedRole === "specialist" ? "/admin" : requestedRole === "customer" ? "/account" : type === "specialist" ? "/admin" : "/account")); router.refresh(); }
-  return <form onSubmit={submit} className="mt-6"><Field label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required autoComplete="email" /><Field label="Пароль" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Минимум 6 символов" required minLength={6} autoComplete="current-password" />{error && <p role="alert" className="mt-4 rounded-xl bg-[var(--soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-dark)]">{error}</p>}<button disabled={loading} className="focus-ring mt-6 w-full rounded-full bg-[var(--accent)] px-6 py-3.5 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60">{loading ? "Входим…" : "Войти"}</button></form>;
+  const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [loading, setLoading] = useState(false);
+  const [telegramChallenge, setTelegramChallenge] = useState<{ id: string; url: string } | null>(null);
+
+  function goToDestination(type?: unknown) {
+    const requestedRole = params.get("role");
+    const destination = params.get("next") || (requestedRole === "specialist" ? "/admin" : requestedRole === "customer" ? "/account" : type === "specialist" ? "/admin" : "/account");
+    router.push(destination);
+    router.refresh();
+  }
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault(); setLoading(true); setError(""); setMessage("");
+    const { data, error: signInError } = await createClient().auth.signInWithPassword({ email, password });
+    if (signInError) { setError("Неверный email или пароль"); setLoading(false); return; }
+    const requestedRole = params.get("role");
+    if (requestedRole === "specialist") {
+      const onboarding = await fetch("/api/onboarding/specialist", { method: "POST" });
+      if (!onboarding.ok) { setError("Не удалось открыть кабинет специалиста"); setLoading(false); return; }
+    }
+    const type = data.user?.user_metadata?.account_type;
+    const destination = params.get("next") || (requestedRole === "specialist" ? "/admin" : requestedRole === "customer" ? "/account" : type === "specialist" ? "/admin" : "/account");
+    if (destination.startsWith("/admin")) {
+      const challengeResponse = await fetch("/api/auth/telegram/challenge", { method: "POST" });
+      const challenge = await challengeResponse.json().catch(() => null);
+      if (challengeResponse.ok && challenge?.required && challenge.id && challenge.url) {
+        setTelegramChallenge({ id: String(challenge.challengeId), url: String(challenge.url) });
+        setMessage("Откройте Telegram и подтвердите вход. При необходимости можно продолжить без подтверждения.");
+        setLoading(false);
+        return;
+      }
+    }
+    goToDestination(type);
+  }
+
+  async function checkTelegram() {
+    if (!telegramChallenge) return;
+    setLoading(true); setError("");
+    const response = await fetch(`/api/auth/telegram/challenge/${telegramChallenge.id}`);
+    const data = await response.json().catch(() => null);
+    if (response.ok && data?.status === "approved") return goToDestination("specialist");
+    setError(data?.status === "rejected" ? "Вход отклонён в Telegram" : data?.status === "expired" ? "Запрос истёк" : "Подтверждение ещё не получено");
+    setLoading(false);
+  }
+
+  function skipTelegram() { goToDestination("specialist"); }
+
+  return <form onSubmit={submit} className="mt-6"><Field label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required autoComplete="email" /><Field label="Пароль" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Минимум 6 символов" required minLength={6} autoComplete="current-password" />{error && <p role="alert" className="mt-4 rounded-xl bg-[var(--soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-dark)]">{error}</p>}{message && <p role="status" className="mt-4 rounded-xl bg-[var(--mint)] px-4 py-3 text-sm font-semibold text-[var(--brand)]">{message}</p>}{telegramChallenge ? <div className="mt-6 grid gap-2"><a href={telegramChallenge.url} target="_blank" rel="noreferrer" className="focus-ring rounded-full bg-[var(--brand)] px-6 py-3.5 text-center font-bold text-white">Открыть Telegram</a><button type="button" onClick={() => void checkTelegram()} disabled={loading} className="focus-ring rounded-full border border-[var(--line)] px-6 py-3.5 font-bold disabled:opacity-60">{loading ? "Проверяем…" : "Я подтвердил вход"}</button><button type="button" onClick={skipTelegram} className="focus-ring rounded-full px-6 py-2 text-sm font-bold text-[var(--muted)]">Продолжить без подтверждения</button></div> : <button disabled={loading} className="focus-ring mt-6 w-full rounded-full bg-[var(--accent)] px-6 py-3.5 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60">{loading ? "Входим…" : "Войти"}</button>}</form>;
 }
 
 type AccountType = "customer" | "specialist";
