@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { notifyTelegramStatus } from "@/src/lib/telegram";
 import { createClient } from "@/src/lib/supabase/server";
 
 const updateSchema = z.object({ id: z.string().uuid(), status: z.enum(["new", "confirmed", "cancelled"]).optional(), action: z.enum(["delete", "restore"]).optional() }).refine((value) => Boolean(value.status) !== Boolean(value.action), "Укажите действие");
@@ -24,8 +25,23 @@ export async function PATCH(request: Request) {
     if (!data) return NextResponse.json({ error: "Срок хранения заявки истёк" }, { status: 410 });
     return NextResponse.json({ deletedAt: data.deleted_at });
   }
-  const { data, error } = await supabase.from("bookings").update({ status: parsed.data.status }).eq("id", parsed.data.id).eq("profile_id", profile.id).is("deleted_at", null).select("id,status").maybeSingle();
+  const { data, error } = await supabase.from("bookings").update({ status: parsed.data.status }).eq("id", parsed.data.id).eq("profile_id", profile.id).is("deleted_at", null).select("*").maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   if (!data) return NextResponse.json({ error: "Заявка не найдена" }, { status: 404 });
+  await notifyTelegramStatus({
+    id: String(data.id),
+    profileId: profile.id,
+    reference: String(data.reference),
+    serviceId: String(data.service_id),
+    serviceName: String(data.service_name),
+    date: String(data.date),
+    time: String(data.time).slice(0, 5),
+    clientName: String(data.client_name),
+    phone: String(data.phone),
+    comment: data.comment ? String(data.comment) : undefined,
+    status: data.status as "new" | "confirmed" | "cancelled",
+    createdAt: String(data.created_at),
+    deletedAt: data.deleted_at ? String(data.deleted_at) : undefined,
+  });
   return NextResponse.json({ status: data.status });
 }

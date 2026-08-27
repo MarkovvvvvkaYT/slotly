@@ -48,7 +48,7 @@ Service role key для этого MVP не нужен и не должен до
 
 ## Telegram
 
-Создайте бота через BotFather и укажите `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`. Уведомление отправляется после сохранения записи; если Telegram не настроен или временно недоступен, сама запись не теряется.
+Slotly отправляет события нового бронирования и изменения статуса в отдельный `slotly-telegram-bot`. Укажите `TELEGRAM_BOT_USERNAME`, `TELEGRAM_BOT_INTERNAL_URL` и общий `TELEGRAM_INTERNAL_SECRET`. Сбой бота не отменяет запись.
 
 ## Структура
 
