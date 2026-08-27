@@ -23,6 +23,11 @@ export async function PATCH(request: Request) {
   if (!userId) return NextResponse.json({ error: "Необходим вход" }, { status: 401 });
   const parsed = profileSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
+  if (parsed.data.isPublished) {
+    const { data: profile } = await supabase.from("profiles").select("id,name,description,city,phone").eq("user_id", userId).maybeSingle();
+    const { count: activeServices } = profile ? await supabase.from("services").select("id", { count: "exact", head: true }).eq("profile_id", profile.id).eq("active", true).is("deleted_at", null) : { count: 0 };
+    if (!profile?.name || !profile.description || !profile.city || !profile.phone || !activeServices) return NextResponse.json({ error: "Перед публикацией заполните профиль, контакты и добавьте хотя бы одну услугу" }, { status: 400 });
+  }
   const update = {
     ...(parsed.data.isPublished !== undefined ? { is_published: parsed.data.isPublished } : {}),
     ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),

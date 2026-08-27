@@ -53,7 +53,7 @@ export function AdminDashboard({ initialBookings, initialServices, profile, demo
     const next = !published;
     if (!demo) {
       const response = await fetch("/api/admin/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isPublished: next }) });
-      if (!response.ok) return setError("Не удалось изменить публикацию профиля");
+      if (!response.ok) return setError((await response.json().catch(() => null))?.error ?? "Не удалось изменить публикацию профиля");
     }
     setPublished(next);
     setNotice(next ? "Профиль опубликован" : "Профиль скрыт из каталога");
