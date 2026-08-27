@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/src/lib/supabase/client";
 
@@ -12,6 +12,14 @@ export function LoginForm() {
   const router = useRouter(); const params = useSearchParams();
   const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [loading, setLoading] = useState(false);
   const [telegramChallenge, setTelegramChallenge] = useState<{ id: string; url: string } | null>(null);
+
+  useEffect(() => {
+    if (!telegramChallenge) return;
+    const timer = window.setInterval(() => { void checkTelegram(); }, 3000);
+    return () => window.clearInterval(timer);
+    // Poll only while current challenge is active.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telegramChallenge]);
 
   function goToDestination(type?: unknown) {
     const requestedRole = params.get("role");
@@ -54,9 +62,7 @@ export function LoginForm() {
     setLoading(false);
   }
 
-  function skipTelegram() { goToDestination("specialist"); }
-
-  return <form onSubmit={submit} className="mt-6"><Field label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required autoComplete="email" /><Field label="Пароль" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Минимум 6 символов" required minLength={6} autoComplete="current-password" />{error && <p role="alert" className="mt-4 rounded-xl bg-[var(--soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-dark)]">{error}</p>}{message && <p role="status" className="mt-4 rounded-xl bg-[var(--mint)] px-4 py-3 text-sm font-semibold text-[var(--brand)]">{message}</p>}{telegramChallenge ? <div className="mt-6 grid gap-2"><a href={telegramChallenge.url} target="_blank" rel="noreferrer" className="focus-ring rounded-full bg-[var(--brand)] px-6 py-3.5 text-center font-bold text-white">Открыть Telegram</a><button type="button" onClick={() => void checkTelegram()} disabled={loading} className="focus-ring rounded-full border border-[var(--line)] px-6 py-3.5 font-bold disabled:opacity-60">{loading ? "Проверяем…" : "Я подтвердил вход"}</button><button type="button" onClick={skipTelegram} className="focus-ring rounded-full px-6 py-2 text-sm font-bold text-[var(--muted)]">Продолжить без подтверждения</button></div> : <button disabled={loading} className="focus-ring mt-6 w-full rounded-full bg-[var(--accent)] px-6 py-3.5 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60">{loading ? "Входим…" : "Войти"}</button>}</form>;
+  return <form onSubmit={submit} className="mt-6"><Field label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required autoComplete="email" /><Field label="Пароль" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Минимум 6 символов" required minLength={6} autoComplete="current-password" />{error && <p role="alert" className="mt-4 rounded-xl bg-[var(--soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-dark)]">{error}</p>}{message && <p role="status" className="mt-4 rounded-xl bg-[var(--mint)] px-4 py-3 text-sm font-semibold text-[var(--brand)]">{message}</p>}{telegramChallenge ? <div className="mt-6 grid gap-2"><a href={telegramChallenge.url} target="_blank" rel="noreferrer" className="focus-ring rounded-full bg-[var(--brand)] px-6 py-3.5 text-center font-bold text-white">Открыть Telegram</a><button type="button" onClick={() => void checkTelegram()} disabled={loading} className="focus-ring rounded-full border border-[var(--line)] px-6 py-3.5 font-bold disabled:opacity-60">{loading ? "Проверяем…" : "Я подтвердил вход"}</button></div> : <button disabled={loading} className="focus-ring mt-6 w-full rounded-full bg-[var(--accent)] px-6 py-3.5 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60">{loading ? "Входим…" : "Войти"}</button>}</form>;
 }
 
 type AccountType = "customer" | "specialist";
