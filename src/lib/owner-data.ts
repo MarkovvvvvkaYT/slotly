@@ -3,6 +3,7 @@ import { filterCatalogProfiles, type CatalogFilters, type CatalogProfile, type P
 import type { AvailabilityRule, Booking, Profile, Service } from "./domain";
 import { isSupabaseConfigured } from "./supabase";
 import { createClient } from "./supabase/server";
+import { isPublicContentSafe } from "./content-safety";
 
 export type OwnerData = { profile: Profile; services: Service[]; availability: AvailabilityRule[]; bookings: Booking[]; demo: boolean };
 
@@ -52,6 +53,7 @@ export async function getPublicProfile(slug: string): Promise<OwnerData | null> 
   const supabase = await createClient();
   const { data: profile, error } = await supabase.from("profiles").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
   if (error || !profile) return null;
+  if (!isPublicContentSafe(profile.name, profile.eyebrow, profile.description, profile.city, profile.address)) return null;
   const [{ data: serviceRows }, { data: availabilityRows }] = await Promise.all([
     supabase.from("services").select("*").eq("profile_id", profile.id).eq("active", true).is("deleted_at", null).order("created_at"),
     supabase.from("availability_rules").select("*").eq("profile_id", profile.id).order("weekday"),
@@ -59,7 +61,7 @@ export async function getPublicProfile(slug: string): Promise<OwnerData | null> 
   const [avatarPath, coverPath] = await Promise.all([mediaUrl(profile.avatar_path, supabase), mediaUrl(profile.cover_path, supabase)]);
   return {
     profile: { id: String(profile.id), userId: String(profile.user_id), name: profile.name, slug: profile.slug, eyebrow: profile.eyebrow, description: profile.description, address: profile.address, phone: profile.phone, category: profile.category, city: profile.city, avatarPath, coverPath, isPublished: true },
-    services: await Promise.all((serviceRows ?? []).map((row) => mapService(row, supabase))),
+    services: (await Promise.all((serviceRows ?? []).map((row) => mapService(row, supabase)))).filter((service) => isPublicContentSafe(service.name, service.description)),
     availability: (availabilityRows ?? []).map((row) => ({ weekday: Number(row.weekday), start: String(row.start_time).slice(0, 5), end: String(row.end_time).slice(0, 5), breakStart: row.break_start ? String(row.break_start).slice(0, 5) : undefined, breakEnd: row.break_end ? String(row.break_end).slice(0, 5) : undefined })),
     bookings: [],
     demo: false,
@@ -77,10 +79,13 @@ export async function getCatalogProfiles(filters: CatalogFilters = {}): Promise<
     .eq("is_published", true)
     .order("created_at", { ascending: false });
   if (error || !data) return [];
-  const catalog = await Promise.all(data.map(async (row) => ({
-    id: String(row.id), name: String(row.name), slug: String(row.slug), category: (row.category ?? "other") as ProfileCategory,
-    city: String(row.city ?? ""), description: String(row.description ?? ""), avatarPath: await mediaUrl(row.avatar_path ? String(row.avatar_path) : undefined, supabase),
-    coverPath: await mediaUrl(row.cover_path ? String(row.cover_path) : undefined, supabase), services: (await Promise.all(((row.services ?? []) as Record<string, unknown>[]).map((service) => mapService(service, supabase)))).filter((service) => service.active),
-  })));
+  const catalog = (await Promise.all(data.map(async (row) => {
+    if (!isPublicContentSafe(row.name, row.description, row.city)) return null;
+    return {
+      id: String(row.id), name: String(row.name), slug: String(row.slug), category: (row.category ?? "other") as ProfileCategory,
+      city: String(row.city ?? ""), description: String(row.description ?? ""), avatarPath: await mediaUrl(row.avatar_path ? String(row.avatar_path) : undefined, supabase),
+      coverPath: await mediaUrl(row.cover_path ? String(row.cover_path) : undefined, supabase), services: (await Promise.all(((row.services ?? []) as Record<string, unknown>[]).map((service) => mapService(service, supabase)))).filter((service) => service.active && isPublicContentSafe(service.name, service.description)),
+    };
+  }))).filter((profile) => profile !== null) as CatalogProfile[];
   return filterCatalogProfiles(catalog, filters);
 }
