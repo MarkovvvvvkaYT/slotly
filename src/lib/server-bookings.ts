@@ -20,7 +20,7 @@ export async function createServerBooking(input: BookingInput) {
     const clientUserId = claims?.claims?.sub ? String(claims.claims.sub) : null;
     const [{ data: profile }, { data: service }] = await Promise.all([
       supabase.from("profiles").select("id,is_published").eq("id", input.profileId).eq("is_published", true).maybeSingle(),
-      supabase.from("services").select("id,name,profile_id,active,duration_minutes").eq("id", input.serviceId).eq("profile_id", input.profileId).eq("active", true).maybeSingle(),
+      supabase.from("services").select("id,name,profile_id,active,duration_minutes").eq("id", input.serviceId).eq("profile_id", input.profileId).eq("active", true).is("deleted_at", null).maybeSingle(),
     ]);
     if (!profile || !service) throw new Error("Услуга или профиль недоступны");
     const [{ data: rule }, { data: bookingRows, error: bookingError }] = await Promise.all([
