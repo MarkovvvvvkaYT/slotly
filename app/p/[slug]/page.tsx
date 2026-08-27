@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingFlow } from "@/src/components/booking-flow";
@@ -6,14 +5,6 @@ import { SlotlyLogo } from "@/src/components/slotly-logo";
 import { ThemeToggle } from "@/src/components/theme-toggle";
 import { getCategoryLabel } from "@/src/lib/catalog";
 import { getPublicProfile } from "@/src/lib/owner-data";
-
-const publicTheme = {
-  "--brand": "#1754d1",
-  "--accent": "#1754d1",
-  "--accent-dark": "#103e9d",
-  "--mint": "#e8efff",
-  "--soft": "#f1f5ff",
-} as CSSProperties;
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -24,7 +15,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   const location = [profile.city, profile.address].filter(Boolean).join(" · ") || "Онлайн";
 
   return (
-    <main className="public-profile-theme min-h-screen bg-[var(--paper)] text-[var(--ink)]" style={publicTheme}>
+    <main className="public-profile-theme min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <nav className="border-b border-[var(--line)] bg-[var(--paper)]/95">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 lg:px-8">
           <SlotlyLogo className="text-[#1754d1]" />

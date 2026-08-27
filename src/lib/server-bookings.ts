@@ -7,7 +7,7 @@ import { isPastSlot } from "./validation";
 import { getAvailableSlots } from "./availability";
 
 function mapBooking(row: Record<string, unknown>): Booking {
-  return { id: String(row.id), profileId: row.profile_id ? String(row.profile_id) : undefined, reference: String(row.reference), serviceId: String(row.service_id), serviceName: String(row.service_name), date: String(row.date), time: String(row.time).slice(0, 5), clientName: String(row.client_name), phone: String(row.phone), comment: row.comment ? String(row.comment) : undefined, status: row.status as Booking["status"], createdAt: String(row.created_at) };
+  return { id: String(row.id), profileId: row.profile_id ? String(row.profile_id) : undefined, reference: String(row.reference), serviceId: String(row.service_id), serviceName: String(row.service_name), date: String(row.date), time: String(row.time).slice(0, 5), clientName: String(row.client_name), phone: String(row.phone), comment: row.comment ? String(row.comment) : undefined, status: row.status as Booking["status"], createdAt: String(row.created_at), deletedAt: row.deleted_at ? String(row.deleted_at) : undefined };
 }
 
 export async function createServerBooking(input: BookingInput) {

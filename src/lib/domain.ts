@@ -33,6 +33,7 @@ export type Booking = {
   comment?: string;
   status: BookingStatus;
   createdAt: string;
+  deletedAt?: string;
 };
 
 export type Profile = {

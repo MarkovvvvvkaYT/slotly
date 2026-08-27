@@ -11,7 +11,7 @@ function demoOwnerData(): OwnerData {
 }
 
 function mapBooking(row: Record<string, unknown>): Booking {
-  return { id: String(row.id), profileId: String(row.profile_id), reference: String(row.reference), serviceId: String(row.service_id), serviceName: String(row.service_name), date: String(row.date), time: String(row.time).slice(0, 5), clientName: String(row.client_name), phone: String(row.phone), comment: row.comment ? String(row.comment) : undefined, status: row.status as Booking["status"], createdAt: String(row.created_at) };
+  return { id: String(row.id), profileId: String(row.profile_id), reference: String(row.reference), serviceId: String(row.service_id), serviceName: String(row.service_name), date: String(row.date), time: String(row.time).slice(0, 5), clientName: String(row.client_name), phone: String(row.phone), comment: row.comment ? String(row.comment) : undefined, status: row.status as Booking["status"], createdAt: String(row.created_at), deletedAt: row.deleted_at ? String(row.deleted_at) : undefined };
 }
 
 async function mediaUrl(path: string | null | undefined, supabase: Awaited<ReturnType<typeof createClient>>) {
