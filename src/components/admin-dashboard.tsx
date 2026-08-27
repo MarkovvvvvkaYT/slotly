@@ -34,6 +34,11 @@ export function AdminDashboard({ initialBookings, initialServices, profile, demo
   const confirmationRate = counts.all ? Math.round((counts.confirmed / counts.all) * 100) : 0;
   const upcoming = bookings.filter((booking) => booking.status !== "cancelled" && booking.date >= new Date().toISOString().slice(0, 10)).length;
   const publicUrl = demo ? "/" : `/p/${profile.slug}`;
+  const setupSteps = [
+    { href: "/admin/profile", label: "Заполнить профиль", done: Boolean(profile.name && profile.description && profile.city && profile.phone) },
+    { href: "/admin/services", label: "Добавить услугу", done: initialServices.some((service) => service.active) },
+    { href: "/admin/profile", label: "Опубликовать страницу", done: published },
+  ];
 
   async function changeStatus(id: string, status: BookingStatus) {
     setError("");
@@ -61,6 +66,7 @@ export function AdminDashboard({ initialBookings, initialServices, profile, demo
     </div>
     {notice && <p role="status" className="mb-5 rounded-xl bg-[var(--mint)] px-4 py-3 text-sm font-semibold text-[var(--brand)]">{notice}</p>}
     {error && <p role="alert" className="mb-5 rounded-xl bg-[var(--soft)] px-4 py-3 text-sm font-semibold text-[var(--accent-dark)]">{error}</p>}
+    {setupSteps.some((step) => !step.done) && <section className="mb-6 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-5 sm:p-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="eyebrow">Первый запуск</p><h2 className="mt-2 text-xl font-bold">Подготовьте страницу к первой записи</h2></div><span className="rounded-full bg-[var(--soft)] px-3 py-1 text-xs font-bold text-[var(--brand)]">{setupSteps.filter((step) => step.done).length}/3 готово</span></div><div className="mt-5 grid gap-2 sm:grid-cols-3">{setupSteps.map((step) => <Link key={step.label} href={step.href} className={`focus-ring rounded-xl border px-4 py-3 text-sm font-bold transition ${step.done ? "border-[var(--line)] text-[var(--muted)] line-through" : "border-[var(--brand)] bg-[var(--soft)] text-[var(--brand)] hover:bg-[var(--mint)]"}`}>{step.done ? "Готово · " : "Далее · "}{step.label}</Link>)}</div></section>}
     <section aria-label="Основные показатели" className="grid gap-4 sm:grid-cols-3">
       {[["Все записи", counts.all, "all"], ["Нужно подтвердить", counts.new, "new"], ["Подтверждены", counts.confirmed, "confirmed"]].map(([label, value, key]) => <button type="button" key={key} onClick={() => setFilter(key as "all" | BookingStatus)} className={`focus-ring surface p-5 text-left transition ${filter === key ? "border-[var(--brand)] bg-[var(--soft)]" : "hover:border-[var(--brand)]"}`}><span className="text-sm text-[var(--muted)]">{label}</span><strong className="mt-3 block text-3xl">{value}</strong></button>)}
     </section>
