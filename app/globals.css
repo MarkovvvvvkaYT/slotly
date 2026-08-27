@@ -62,5 +62,9 @@ main > section:nth-of-type(5) > div.mt-12 { border:1px solid color-mix(in srgb,v
 .public-profile-theme [class*="text-[#1754d1]"] { color:var(--brand)!important; }
 .public-profile-theme [class*="bg-[#1754d1]"] { background:var(--brand)!important; }
 .public-profile-theme [class*="bg-[#103e9d]"] { background:var(--accent-dark)!important; }
+.public-profile-theme button[aria-checked="true"] { background:var(--soft)!important; border-color:var(--brand)!important; color:var(--ink)!important; }
+.public-profile-theme button[aria-checked="true"] strong,.public-profile-theme button[aria-checked="true"] span:not([class*="bg-"]) { color:var(--ink)!important; }
+@media (prefers-color-scheme:dark) { :root:not([data-theme="light"]) .public-profile-theme button[aria-checked="true"] { background:#263149!important; } }
+:root[data-theme="dark"] .public-profile-theme button[aria-checked="true"] { background:#263149!important; }
 :root[data-theme="dark"] .public-profile-theme { --ink:#f5f7ff; --muted:#c4cad8; --paper:#0e1118; --card:#181d28; --line:#364052; --brand:#9ab8ff; --accent:#9ab8ff; --accent-dark:#d1ddff; --mint:#213967; --soft:#263149; }
 @media (prefers-color-scheme:dark) { :root:not([data-theme="light"]) .public-profile-theme { --ink:#f5f7ff; --muted:#c4cad8; --paper:#0e1118; --card:#181d28; --line:#364052; --brand:#9ab8ff; --accent:#9ab8ff; --accent-dark:#d1ddff; --mint:#213967; --soft:#263149; } }
